@@ -1,7 +1,7 @@
 // ==========================================
 // 1. 将此处修改为您自己的 GitHub 用户名
 // ==========================================
-const GITHUB_USERNAME = "username";
+const GITHUB_USERNAME = "MrWengKB";
 
 // 是否隐藏主页仓库本身 (username.github.io)
 const EXCLUDE_HOME_REPO = true;
