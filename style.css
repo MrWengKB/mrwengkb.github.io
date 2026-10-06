@@ -1,13 +1,13 @@
 :root {
-  --bg: #0d1117;
-  --card-bg: #161b22;
-  --border: #30363d;
-  --text: #c9d1d9;
-  --title: #f0f6fc;
-  --accent: #58a6ff;
-  --accent-hover: #79c0ff;
-  --meta: #8b949e;
-  --tag-bg: #21262d;
+  --bg: #f6f8fa;             /* 浅灰白底色，减轻纯白刺眼感 */
+  --card-bg: #ffffff;        /* 卡片纯白背景 */
+  --border: #d0d7de;         /* 浅色边框 */
+  --text: #57606a;           /* 次要文本灰 */
+  --title: #24292f;          /* 标题深黑灰 */
+  --accent: #0969da;         /* GitHub 蓝 */
+  --accent-hover: #0550ae;   /* 悬浮深蓝 */
+  --meta: #6e7781;           /* 元数据浅灰 */
+  --tag-bg: #f3f4f6;         /* 标签微灰底色 */
 }
 
 * {
@@ -65,12 +65,14 @@ h1 {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 1px 3px rgba(31, 35, 40, 0.04);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
   border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(31, 35, 40, 0.08);
 }
 
 .card-title {
@@ -83,7 +85,7 @@ h1 {
 
 .card-desc {
   font-size: 0.9rem;
-  color: var(--meta);
+  color: var(--text);
   margin-bottom: 1.25rem;
   flex-grow: 1;
 }
@@ -101,6 +103,7 @@ h1 {
 .pill {
   background-color: var(--tag-bg);
   border: 1px solid var(--border);
+  color: var(--title);
   padding: 0.15rem 0.5rem;
   border-radius: 12px;
 }
@@ -118,26 +121,27 @@ h1 {
   font-weight: 500;
   padding: 0.45rem 0.75rem;
   border-radius: 6px;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn-primary {
-  background-color: #238636;
+  background-color: #1f883d;
   color: #ffffff;
 }
 
 .btn-primary:hover {
-  background-color: #2ea043;
+  background-color: #1a7f37;
 }
 
 .btn-secondary {
-  background-color: var(--tag-bg);
+  background-color: #f6f8fa;
   color: var(--title);
   border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-  background-color: var(--border);
+  background-color: #f3f4f6;
+  border-color: #b1bac4;
 }
 
 .state-message {
