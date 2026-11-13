@@ -6,12 +6,111 @@ const GITHUB_USERNAME = "MrWengKB";
 // 是否隐藏主页仓库本身 (username.github.io)
 const EXCLUDE_HOME_REPO = true;
 
+// ==========================================
+// 2. 中英文文案
+// ==========================================
+const I18N = {
+  zh: {
+    htmlLang: "zh-CN",
+    docTitle: "GitHub Pages 导航",
+    pageTitle: (user) => `${user} 的 GitHub Pages`,
+    querying: "正在查询仓库...",
+    loading: "正在从 GitHub 获取项目列表...",
+    loadFailed: (msg) => `加载失败: ${msg}`,
+    apiFailed: (status) => `API 访问失败: HTTP ${status}`,
+    fetchFailed: "获取失败",
+    empty: "未发现开启了 Pages 的其他公开仓库。",
+    count: (n) => `共找到 ${n} 个站点`,
+    noDesc: "暂无描述信息",
+    updated: (d) => `更新于: ${d}`,
+    visit: "访问站点",
+    source: "源码仓库",
+    toggleLabel: "EN",
+    toggleAria: "Switch to English",
+    dateLocale: "zh-CN",
+  },
+  en: {
+    htmlLang: "en",
+    docTitle: "GitHub Pages Directory",
+    pageTitle: (user) => `${user}'s GitHub Pages`,
+    querying: "Checking repositories...",
+    loading: "Loading projects from GitHub...",
+    loadFailed: (msg) => `Couldn't load projects: ${msg}`,
+    apiFailed: (status) => `GitHub API request failed: HTTP ${status}`,
+    fetchFailed: "Load failed",
+    empty: "No other public repositories with Pages enabled.",
+    count: (n) => `${n} site${n === 1 ? "" : "s"} found`,
+    noDesc: "No description",
+    updated: (d) => `Updated ${d}`,
+    visit: "Visit site",
+    source: "Source code",
+    toggleLabel: "中文",
+    toggleAria: "切换到中文",
+    dateLocale: "en-US",
+  },
+};
+
+const LANG_KEY = "pages-nav-lang";
+
+function detectLang() {
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    if (saved && I18N[saved]) return saved;
+  } catch (e) {}
+  return (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+}
+
+let currentLang = detectLang();
+let t = I18N[currentLang];
+
+// 页面状态：loading | error | done
+let state = { status: "loading", repos: [], error: null };
+
 const container = document.getElementById("pages-container");
 const countText = document.getElementById("repo-count");
 const pageTitle = document.getElementById("page-title");
+const langToggle = document.getElementById("lang-toggle");
 
-if (pageTitle) {
-  pageTitle.textContent = `${GITHUB_USERNAME} 的 GitHub Pages`;
+function applyStaticText() {
+  document.documentElement.lang = t.htmlLang;
+  document.title = t.docTitle;
+  if (pageTitle) pageTitle.textContent = t.pageTitle(GITHUB_USERNAME);
+  if (langToggle) {
+    langToggle.textContent = t.toggleLabel;
+    langToggle.setAttribute("aria-label", t.toggleAria);
+  }
+}
+
+function render() {
+  applyStaticText();
+  if (state.status === "loading") {
+    countText.textContent = t.querying;
+    container.innerHTML = `<div class="state-message">${t.loading}</div>`;
+  } else if (state.status === "error") {
+    countText.textContent = t.fetchFailed;
+    container.innerHTML = `<div class="state-message" style="color: #f85149;">${escapeHTML(t.loadFailed(errorText(state.error)))}</div>`;
+  } else {
+    renderList(state.repos);
+  }
+}
+
+// 错误信息按当前语言生成，切换语言后也会更新
+function errorText(err) {
+  return err && err.httpStatus ? t.apiFailed(err.httpStatus) : String(err && err.message);
+}
+
+function setLang(lang) {
+  if (!I18N[lang]) return;
+  currentLang = lang;
+  t = I18N[lang];
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  render();
+}
+
+if (langToggle) {
+  langToggle.addEventListener("click", () => {
+    setLang(currentLang === "zh" ? "en" : "zh");
+  });
 }
 
 async function fetchPagesRepos() {
@@ -21,7 +120,9 @@ async function fetchPagesRepos() {
     );
 
     if (!res.ok) {
-      throw new Error(`API 访问失败: HTTP ${res.status}`);
+      const err = new Error();
+      err.httpStatus = res.status;
+      throw err;
     }
 
     const repos = await res.json();
@@ -38,43 +139,43 @@ async function fetchPagesRepos() {
       return true;
     });
 
-    renderList(pagesRepos);
+    state = { status: "done", repos: pagesRepos, error: null };
   } catch (err) {
-    container.innerHTML = `<div class="state-message" style="color: #f85149;">加载失败: ${err.message}</div>`;
-    countText.textContent = "获取失败";
+    state = { status: "error", repos: [], error: err };
   }
+  render();
 }
 
 function renderList(repos) {
   if (repos.length === 0) {
-    container.innerHTML = `<div class="state-message">未发现开启了 Pages 的其他公开仓库。</div>`;
-    countText.textContent = "共 0 个站点";
+    container.innerHTML = `<div class="state-message">${t.empty}</div>`;
+    countText.textContent = t.count(0);
     return;
   }
 
-  countText.textContent = `共找到 ${repos.length} 个站点`;
+  countText.textContent = t.count(repos.length);
   container.innerHTML = "";
 
   repos.forEach((repo) => {
     const pageUrl = `https://${GITHUB_USERNAME}.github.io/${repo.name}/`;
-    const updatedDate = new Date(repo.updated_at).toLocaleDateString("zh-CN");
+    const updatedDate = new Date(repo.updated_at).toLocaleDateString(t.dateLocale);
 
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <div>
         <div class="card-title">${escapeHTML(repo.name)}</div>
-        <div class="card-desc">${escapeHTML(repo.description || "暂无描述信息")}</div>
+        <div class="card-desc">${escapeHTML(repo.description || t.noDesc)}</div>
       </div>
       <div>
         <div class="card-meta">
           ${repo.language ? `<span class="pill">${escapeHTML(repo.language)}</span>` : ""}
-          <span>更新于: ${updatedDate}</span>
+          <span>${t.updated(updatedDate)}</span>
           ${repo.stargazers_count > 0 ? `<span>★ ${repo.stargazers_count}</span>` : ""}
         </div>
         <div class="card-links">
-          <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">访问站点</a>
-          <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">源码仓库</a>
+          <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${t.visit}</a>
+          <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">${t.source}</a>
         </div>
       </div>
     `;
@@ -91,4 +192,5 @@ function escapeHTML(str) {
     .replace(/'/g, "&#039;");
 }
 
+render();
 fetchPagesRepos();
