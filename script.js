@@ -6,6 +6,9 @@ const GITHUB_USERNAME = "MrWengKB";
 // 是否隐藏主页仓库本身 (username.github.io)
 const EXCLUDE_HOME_REPO = true;
 
+// 不在导航页显示的仓库（填仓库名，不分大小写）
+const EXCLUDE_REPOS = ["blog"];
+
 // ==========================================
 // 2. 中英文文案
 // ==========================================
@@ -134,6 +137,9 @@ async function fetchPagesRepos() {
         EXCLUDE_HOME_REPO &&
         repo.name.toLowerCase() === `${GITHUB_USERNAME.toLowerCase()}.github.io`
       ) {
+        return false;
+      }
+      if (EXCLUDE_REPOS.some((name) => name.toLowerCase() === repo.name.toLowerCase())) {
         return false;
       }
       return true;
