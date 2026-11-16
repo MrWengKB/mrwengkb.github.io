@@ -15,8 +15,8 @@ const EXCLUDE_REPOS = ["blog"];
 const I18N = {
   zh: {
     htmlLang: "zh-CN",
-    docTitle: "GitHub Pages 导航",
-    pageTitle: (user) => `${user} 的 GitHub Pages`,
+    docTitle: "我的项目",
+    pageTitle: () => "我的项目",
     querying: "正在查询仓库...",
     loading: "正在从 GitHub 获取项目列表...",
     loadFailed: (msg) => `加载失败: ${msg}`,
@@ -34,8 +34,8 @@ const I18N = {
   },
   en: {
     htmlLang: "en",
-    docTitle: "GitHub Pages Directory",
-    pageTitle: (user) => `${user}'s GitHub Pages`,
+    docTitle: "My Projects",
+    pageTitle: () => "My Projects",
     querying: "Checking repositories...",
     loading: "Loading projects from GitHub...",
     loadFailed: (msg) => `Couldn't load projects: ${msg}`,
