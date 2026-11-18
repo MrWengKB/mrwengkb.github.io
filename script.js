@@ -15,6 +15,7 @@ const EXCLUDE_REPOS = ["blog"];
 const CATEGORIES = [
   { topic: "game", label: { zh: "游戏", en: "Games" } },
   { topic: "tool", label: { zh: "工具", en: "Tools" } },
+  { topic: "assessment", label: { zh: "评估", en: "Assessments" } },
 ];
 
 // ==========================================
