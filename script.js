@@ -9,6 +9,14 @@ const EXCLUDE_HOME_REPO = true;
 // 不在导航页显示的仓库（填仓库名，不分大小写）
 const EXCLUDE_REPOS = ["blog"];
 
+// 分类：按仓库的 Topics（主题标签）归类，按顺序显示为顶部的切换按钮。
+// 新增分类只需在这里加一行，并给对应仓库打上同名 topic。
+// 一个仓库有多个匹配的 topic 时，会同时出现在多个分类下。
+const CATEGORIES = [
+  { topic: "game", label: { zh: "游戏", en: "Games" } },
+  { topic: "tool", label: { zh: "工具", en: "Tools" } },
+];
+
 // ==========================================
 // 2. 中英文文案
 // ==========================================
@@ -30,6 +38,9 @@ const I18N = {
     source: "源码仓库",
     toggleLabel: "EN",
     toggleAria: "Switch to English",
+    all: "全部",
+    filterAria: "按分类筛选",
+    emptyCategory: "这个分类下暂时没有站点。",
     avatarAlt: (u) => `${u} 的 GitHub 头像`,
     dateLocale: "zh-CN",
   },
@@ -50,6 +61,9 @@ const I18N = {
     source: "Source code",
     toggleLabel: "中文",
     toggleAria: "切换到中文",
+    all: "All",
+    filterAria: "Filter by category",
+    emptyCategory: "No sites in this category yet.",
     avatarAlt: (u) => `${u}'s GitHub avatar`,
     dateLocale: "en-US",
   },
@@ -71,11 +85,20 @@ let t = I18N[currentLang];
 // 页面状态：loading | error | done
 let state = { status: "loading", repos: [], error: null };
 
+// 当前分类："all" 或某个分类的 topic，同步到网址的 #hash，方便直接分享某个分类
+const ALL = "all";
+function categoryFromHash() {
+  const h = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+  return CATEGORIES.some((c) => c.topic === h) ? h : ALL;
+}
+let currentCategory = categoryFromHash();
+
 const container = document.getElementById("pages-container");
 const countText = document.getElementById("repo-count");
 const pageTitle = document.getElementById("page-title");
 const langToggle = document.getElementById("lang-toggle");
 const avatar = document.getElementById("avatar");
+const categoryBar = document.getElementById("category-bar");
 
 function applyStaticText() {
   document.documentElement.lang = t.htmlLang;
@@ -90,6 +113,7 @@ function applyStaticText() {
 
 function render() {
   applyStaticText();
+  renderCategoryBar();
   if (state.status === "loading") {
     countText.textContent = t.querying;
     container.innerHTML = `<div class="state-message">${t.loading}</div>`;
@@ -117,6 +141,53 @@ function setLang(lang) {
 if (langToggle) {
   langToggle.addEventListener("click", () => {
     setLang(currentLang === "zh" ? "en" : "zh");
+  });
+}
+
+function repoInCategory(repo, category) {
+  if (category === ALL) return true;
+  return (repo.topics || []).some((topic) => topic.toLowerCase() === category);
+}
+
+function setCategory(category) {
+  currentCategory = category;
+  const hash = category === ALL ? "" : `#${category}`;
+  history.replaceState(null, "", location.pathname + location.search + hash);
+  render();
+}
+
+window.addEventListener("hashchange", () => {
+  currentCategory = categoryFromHash();
+  render();
+});
+
+function renderCategoryBar() {
+  if (!categoryBar) return;
+  categoryBar.setAttribute("aria-label", t.filterAria);
+  const done = state.status === "done";
+  const options = [
+    { key: ALL, label: t.all },
+    ...CATEGORIES.map((c) => ({ key: c.topic, label: c.label[currentLang] || c.topic })),
+  ];
+
+  categoryBar.innerHTML = "";
+  options.forEach(({ key, label }) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "category-btn";
+    const active = key === currentCategory;
+    if (active) btn.classList.add("active");
+    btn.setAttribute("aria-pressed", String(active));
+    btn.textContent = label;
+    if (done) {
+      const n = state.repos.filter((repo) => repoInCategory(repo, key)).length;
+      const count = document.createElement("span");
+      count.className = "category-count";
+      count.textContent = n;
+      btn.appendChild(count);
+    }
+    btn.addEventListener("click", () => setCategory(key));
+    categoryBar.appendChild(btn);
   });
 }
 
@@ -156,9 +227,16 @@ async function fetchPagesRepos() {
   render();
 }
 
-function renderList(repos) {
-  if (repos.length === 0) {
+function renderList(allRepos) {
+  if (allRepos.length === 0) {
     container.innerHTML = `<div class="state-message">${t.empty}</div>`;
+    countText.textContent = t.count(0);
+    return;
+  }
+
+  const repos = allRepos.filter((repo) => repoInCategory(repo, currentCategory));
+  if (repos.length === 0) {
+    container.innerHTML = `<div class="state-message">${t.emptyCategory}</div>`;
     countText.textContent = t.count(0);
     return;
   }

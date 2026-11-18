@@ -30,7 +30,7 @@ body {
 }
 
 header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
   padding-bottom: 1.5rem;
   display: flex;
@@ -212,4 +212,59 @@ h1 {
 .lang-toggle:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* 分类切换 */
+.category-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.category-btn {
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--title);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.category-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.category-btn.active {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.category-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.category-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background-color: var(--tag-bg);
+  color: var(--meta);
+}
+
+.category-btn.active .category-count {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
 }
