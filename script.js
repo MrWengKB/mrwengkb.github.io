@@ -30,6 +30,7 @@ const I18N = {
     source: "源码仓库",
     toggleLabel: "EN",
     toggleAria: "Switch to English",
+    avatarAlt: (u) => `${u} 的 GitHub 头像`,
     dateLocale: "zh-CN",
   },
   en: {
@@ -49,6 +50,7 @@ const I18N = {
     source: "Source code",
     toggleLabel: "中文",
     toggleAria: "切换到中文",
+    avatarAlt: (u) => `${u}'s GitHub avatar`,
     dateLocale: "en-US",
   },
 };
@@ -73,11 +75,13 @@ const container = document.getElementById("pages-container");
 const countText = document.getElementById("repo-count");
 const pageTitle = document.getElementById("page-title");
 const langToggle = document.getElementById("lang-toggle");
+const avatar = document.getElementById("avatar");
 
 function applyStaticText() {
   document.documentElement.lang = t.htmlLang;
   document.title = t.docTitle;
   if (pageTitle) pageTitle.textContent = t.pageTitle(GITHUB_USERNAME);
+  if (avatar) avatar.alt = t.avatarAlt(GITHUB_USERNAME);
   if (langToggle) {
     langToggle.textContent = t.toggleLabel;
     langToggle.setAttribute("aria-label", t.toggleAria);
