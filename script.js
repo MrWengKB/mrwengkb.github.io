@@ -16,6 +16,9 @@ const CATEGORIES = [
   { topic: "game", label: { zh: "游戏", en: "Games" } },
   { topic: "tool", label: { zh: "工具", en: "Tools" } },
   { topic: "assessment", label: { zh: "评估", en: "Assessments" } },
+  { topic: "chinese", label: { zh: "中文", en: "Chinese" } },
+  { topic: "english", label: { zh: "英文", en: "English" } },
+  { topic: "multilingual", label: { zh: "多语", en: "Multilingual" } },
 ];
 
 // ==========================================
