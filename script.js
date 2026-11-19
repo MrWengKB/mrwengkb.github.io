@@ -276,14 +276,19 @@ function renderList(allRepos) {
   });
 }
 
-// 卡片图标：依次尝试各站点常见的 favicon 路径，都没有就隐藏
+// 卡片图标：依次尝试各站点常见的 favicon 路径，都没有就用主页自己的图标
 const FAVICON_PATHS = ["favicon.svg", "favicon-32.png", "icons/icon-192.png", "apple-touch-icon.png"];
+const DEFAULT_FAVICON = "favicon.svg";
 function loadFavicon(img, pageUrl) {
   let i = 0;
   img.onerror = () => {
     i++;
-    if (i < FAVICON_PATHS.length) img.src = pageUrl + FAVICON_PATHS[i];
-    else img.remove();
+    if (i < FAVICON_PATHS.length) {
+      img.src = pageUrl + FAVICON_PATHS[i];
+    } else {
+      img.onerror = () => img.remove();
+      img.src = DEFAULT_FAVICON;
+    }
   };
   img.src = pageUrl + FAVICON_PATHS[0];
 }
