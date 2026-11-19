@@ -113,6 +113,17 @@ h1 {
   color: var(--title);
   margin-bottom: 0.5rem;
   word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  object-fit: contain;
 }
 
 .card-desc {

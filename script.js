@@ -256,7 +256,7 @@ function renderList(allRepos) {
     card.className = "card";
     card.innerHTML = `
       <div>
-        <div class="card-title">${escapeHTML(repo.name)}</div>
+        <div class="card-title"><img class="card-icon" alt="" width="24" height="24"><span>${escapeHTML(repo.name)}</span></div>
         <div class="card-desc">${escapeHTML(repo.description || t.noDesc)}</div>
       </div>
       <div>
@@ -271,8 +271,21 @@ function renderList(allRepos) {
         </div>
       </div>
     `;
+    loadFavicon(card.querySelector(".card-icon"), pageUrl);
     container.appendChild(card);
   });
+}
+
+// 卡片图标：依次尝试各站点常见的 favicon 路径，都没有就隐藏
+const FAVICON_PATHS = ["favicon.svg", "favicon-32.png", "icons/icon-192.png", "apple-touch-icon.png"];
+function loadFavicon(img, pageUrl) {
+  let i = 0;
+  img.onerror = () => {
+    i++;
+    if (i < FAVICON_PATHS.length) img.src = pageUrl + FAVICON_PATHS[i];
+    else img.remove();
+  };
+  img.src = pageUrl + FAVICON_PATHS[0];
 }
 
 function escapeHTML(str) {
