@@ -45,6 +45,10 @@ const I18N = {
     all: "全部",
     filterAria: "按分类筛选",
     emptyCategory: "这个分类下暂时没有站点。",
+    searchPlaceholder: "搜索名称、描述、标签…",
+    searchAria: "搜索项目",
+    noMatch: (q) => `没有找到与“${q}”相关的站点。`,
+    matchCount: (n) => `找到 ${n} 个匹配的站点`,
     avatarAlt: (u) => `${u} 的 GitHub 头像`,
     dateLocale: "zh-CN",
   },
@@ -68,6 +72,10 @@ const I18N = {
     all: "All",
     filterAria: "Filter by category",
     emptyCategory: "No sites in this category yet.",
+    searchPlaceholder: "Search name, description, topics…",
+    searchAria: "Search projects",
+    noMatch: (q) => `No sites match “${q}”.`,
+    matchCount: (n) => `${n} matching site${n === 1 ? "" : "s"}`,
     avatarAlt: (u) => `${u}'s GitHub avatar`,
     dateLocale: "en-US",
   },
@@ -97,12 +105,20 @@ function categoryFromHash() {
 }
 let currentCategory = categoryFromHash();
 
+// 搜索词：同步到网址的 ?q=，方便分享搜索结果
+function queryFromURL() {
+  return new URLSearchParams(location.search).get("q") || "";
+}
+let currentQuery = queryFromURL();
+
 const container = document.getElementById("pages-container");
 const countText = document.getElementById("repo-count");
 const pageTitle = document.getElementById("page-title");
 const langToggle = document.getElementById("lang-toggle");
 const avatar = document.getElementById("avatar");
 const categoryBar = document.getElementById("category-bar");
+const searchInput = document.getElementById("search-input");
+if (searchInput) searchInput.value = currentQuery;
 
 function applyStaticText() {
   document.documentElement.lang = t.htmlLang;
@@ -112,6 +128,10 @@ function applyStaticText() {
   if (langToggle) {
     langToggle.textContent = t.toggleLabel;
     langToggle.setAttribute("aria-label", t.toggleAria);
+  }
+  if (searchInput) {
+    searchInput.placeholder = t.searchPlaceholder;
+    searchInput.setAttribute("aria-label", t.searchAria);
   }
 }
 
@@ -153,10 +173,107 @@ function repoInCategory(repo, category) {
   return (repo.topics || []).some((topic) => topic.toLowerCase() === category);
 }
 
+// ---------- 搜索 ----------
+// 把搜索词拆成多个关键词（空格分隔），全部命中才算匹配；不分大小写
+function searchTerms(query) {
+  return query.toLowerCase().split(/\s+/).filter(Boolean);
+}
+
+// 每个仓库可被搜索的文本：名称（连字符也当空格）、描述、topics、语言，以及所属分类的中英文名
+function searchText(repo) {
+  if (repo._searchText) return repo._searchText;
+  const topics = (repo.topics || []).map((x) => x.toLowerCase());
+  const labels = CATEGORIES.filter((c) => topics.includes(c.topic)).flatMap((c) => Object.values(c.label));
+  repo._searchText = [
+    repo.name,
+    repo.name.replace(/[-_.]+/g, " "),
+    repo.description || "",
+    ...topics,
+    repo.language || "",
+    ...labels,
+  ].join("\n").toLowerCase();
+  return repo._searchText;
+}
+
+function repoMatchesQuery(repo, terms) {
+  if (terms.length === 0) return true;
+  const text = searchText(repo);
+  return terms.every((term) => text.includes(term));
+}
+
+// 转义后再用 <mark> 标出命中的关键词
+function highlight(str, terms) {
+  const text = String(str);
+  if (terms.length === 0) return escapeHTML(text);
+  const lower = text.toLowerCase();
+  const marks = new Array(text.length).fill(false);
+  terms.forEach((term) => {
+    let i = lower.indexOf(term);
+    while (i !== -1) {
+      for (let k = i; k < i + term.length; k++) marks[k] = true;
+      i = lower.indexOf(term, i + term.length);
+    }
+  });
+  let html = "";
+  let i = 0;
+  while (i < text.length) {
+    let j = i;
+    while (j < text.length && marks[j] === marks[i]) j++;
+    const part = escapeHTML(text.slice(i, j));
+    html += marks[i] ? `<mark>${part}</mark>` : part;
+    i = j;
+  }
+  return html;
+}
+
+function updateURL() {
+  const params = new URLSearchParams(location.search);
+  if (currentQuery) params.set("q", currentQuery);
+  else params.delete("q");
+  const search = params.toString() ? `?${params}` : "";
+  const hash = currentCategory === ALL ? "" : `#${currentCategory}`;
+  history.replaceState(null, "", location.pathname + search + hash);
+}
+
+function setQuery(query) {
+  if (query === currentQuery) return;
+  currentQuery = query;
+  updateURL();
+  render();
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", (e) => {
+    // 拼音等输入法组字过程中先不过滤，选好字再搜
+    if (e.isComposing) return;
+    setQuery(searchInput.value.trim());
+  });
+  searchInput.addEventListener("compositionend", () => setQuery(searchInput.value.trim()));
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (searchInput.value) {
+        searchInput.value = "";
+        setQuery("");
+      } else {
+        searchInput.blur();
+      }
+    }
+  });
+}
+
+// 按 / 快速聚焦搜索框（正在输入时不拦截）
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || !searchInput) return;
+  const el = document.activeElement;
+  if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+  e.preventDefault();
+  searchInput.focus();
+  searchInput.select();
+});
+
 function setCategory(category) {
   currentCategory = category;
-  const hash = category === ALL ? "" : `#${category}`;
-  history.replaceState(null, "", location.pathname + location.search + hash);
+  updateURL();
   render();
 }
 
@@ -184,7 +301,8 @@ function renderCategoryBar() {
     btn.setAttribute("aria-pressed", String(active));
     btn.textContent = label;
     if (done) {
-      const n = state.repos.filter((repo) => repoInCategory(repo, key)).length;
+      const terms = searchTerms(currentQuery);
+      const n = state.repos.filter((repo) => repoInCategory(repo, key) && repoMatchesQuery(repo, terms)).length;
       const count = document.createElement("span");
       count.className = "category-count";
       count.textContent = n;
@@ -238,14 +356,18 @@ function renderList(allRepos) {
     return;
   }
 
-  const repos = allRepos.filter((repo) => repoInCategory(repo, currentCategory));
+  const terms = searchTerms(currentQuery);
+  const repos = allRepos.filter(
+    (repo) => repoInCategory(repo, currentCategory) && repoMatchesQuery(repo, terms)
+  );
   if (repos.length === 0) {
-    container.innerHTML = `<div class="state-message">${t.emptyCategory}</div>`;
+    const msg = terms.length ? t.noMatch(currentQuery) : t.emptyCategory;
+    container.innerHTML = `<div class="state-message">${escapeHTML(msg)}</div>`;
     countText.textContent = t.count(0);
     return;
   }
 
-  countText.textContent = t.count(repos.length);
+  countText.textContent = terms.length ? t.matchCount(repos.length) : t.count(repos.length);
   container.innerHTML = "";
 
   repos.forEach((repo) => {
@@ -256,8 +378,8 @@ function renderList(allRepos) {
     card.className = "card";
     card.innerHTML = `
       <div>
-        <div class="card-title"><img class="card-icon" alt="" width="24" height="24"><span>${escapeHTML(repo.name)}</span></div>
-        <div class="card-desc">${escapeHTML(repo.description || t.noDesc)}</div>
+        <div class="card-title"><img class="card-icon" alt="" width="24" height="24"><span>${highlight(repo.name, terms)}</span></div>
+        <div class="card-desc">${repo.description ? highlight(repo.description, terms) : escapeHTML(t.noDesc)}</div>
       </div>
       <div>
         <div class="card-meta">
