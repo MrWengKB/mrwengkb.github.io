@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.mrwengkb.classmanager",
+    "sha256_cert_fingerprints": [
+      "93:3B:F5:51:D3:60:C1:23:F6:1A:5B:BC:F3:A2:40:CB:AA:65:C5:9C:93:EA:CF:C0:C0:B3:30:CB:D1:D8:5E:3E"
+    ]
+  }
+}]
