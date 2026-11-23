@@ -1,0 +1,332 @@
+{
+  "repos": [
+    {
+      "name": "webOSControl",
+      "full_name": "MrWengKB/webOSControl",
+      "description": "A remote control app for webOS TV.",
+      "topics": [
+        "android",
+        "english",
+        "tool"
+      ],
+      "language": "Kotlin",
+      "updated_at": "2026-11-23T10:16:56Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/webOSControl",
+      "has_pages": false,
+      "default_branch": "main",
+      "release": {
+        "tag": "v0.1.1",
+        "url": "https://github.com/MrWengKB/webOSControl/releases/tag/v0.1.1",
+        "assets": [
+          {
+            "name": "webOSControl-v0.1.1.apk",
+            "url": "https://github.com/MrWengKB/webOSControl/releases/download/v0.1.1/webOSControl-v0.1.1.apk"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClassManager",
+      "full_name": "MrWengKB/ClassManager",
+      "description": "A classroom management tool built and enhanced upon SeatManager and ClassHero. 课堂管家：建立于“排排坐”和“课堂英雄”基础上并拓展功能的课堂管理工具。",
+      "topics": [
+        "chinese",
+        "english",
+        "malay",
+        "multilingual",
+        "tamil",
+        "tool"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-22T14:19:42Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/ClassManager",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "ClassHero",
+      "full_name": "MrWengKB/ClassHero",
+      "description": "[Legacy] Task tracking, points system, reading records, leaderboard 【历史遗留】课堂英雄：追踪任务完成情况、加分、阅读打卡、排行榜",
+      "topics": [
+        "chinese",
+        "english",
+        "malay",
+        "multilingual",
+        "tamil",
+        "tool"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-22T11:51:25Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/ClassHero",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "SeatManager",
+      "full_name": "MrWengKB/SeatManager",
+      "description": "[Legacy] Import a class list and start planning seats and groups. 【历史遗留】排排坐：导入班级名单，计划座位和分组。",
+      "topics": [
+        "chinese",
+        "english",
+        "malay",
+        "multilingual",
+        "tamil",
+        "tool"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-22T11:48:57Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/SeatManager",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "StoryBox",
+      "full_name": "MrWengKB/StoryBox",
+      "description": "故事盒子：从Google Drive打开绘本或故事书的PDF，实现全屏阅读、翻页动画等。 (Chinese) Open PDF story books from Google Drive and read it like a pro.",
+      "topics": [
+        "chinese",
+        "tool"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-22T08:16:30Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/StoryBox",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "HanziBomb",
+      "full_name": "MrWengKB/HanziBomb",
+      "description": "汉字炸弹：根据拼音点选正确的汉字以消除炸弹。 (Chinese) Remove that bomb with the correct Chinese character",
+      "topics": [
+        "chinese",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-22T07:37:06Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/HanziBomb",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "Prompter",
+      "full_name": "MrWengKB/Prompter",
+      "description": "填写参数以生成提示语。Generate prompts using parameters. ",
+      "topics": [
+        "chinese",
+        "english",
+        "prompt",
+        "tool"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-20T05:49:16Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/Prompter",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "CompoMarker",
+      "full_name": "MrWengKB/CompoMarker",
+      "description": "拍摄手写作文，识别文字并批改。需要有自己的接口密钥(API Key)。 (Chinese) Recognize and grade handwritten compositions. Needs your own API Key.",
+      "topics": [
+        "chinese",
+        "tool"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-19T03:26:48Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/CompoMarker",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "CLAdventure",
+      "full_name": "MrWengKB/CLAdventure",
+      "description": "《大富翁》和《卡皮巴拉GO》结合体，回答问题闯关，不过运气也很重要！ (Chinese) Monopoly + Capybara GO. Answer questions to start a new day, but luck plays a role too!",
+      "topics": [
+        "chinese",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-19T03:25:28Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/CLAdventure",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "HanziMatch",
+      "full_name": "MrWengKB/HanziMatch",
+      "description": "汉字拼音配对游戏 (Chinese) Match a character with its hanyu pinyin.",
+      "topics": [
+        "chinese",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-19T03:24:54Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/HanziMatch",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "Unscramble",
+      "full_name": "MrWengKB/Unscramble",
+      "description": "将词语排列成通顺的句子。 (Chinese) Unscramble the words to form a sentence.",
+      "topics": [
+        "assessment",
+        "chinese"
+      ],
+      "language": "HTML",
+      "updated_at": "2026-11-19T03:24:07Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/Unscramble",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "CLMiner",
+      "full_name": "MrWengKB/CLMiner",
+      "description": "练习华文的挖矿游戏 (Chinese) A mining game for self-study and practice",
+      "topics": [
+        "chinese",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-19T03:22:05Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/CLMiner",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "PracRead",
+      "full_name": "MrWengKB/PracRead",
+      "description": "朗读练习，自动打分 （Chinese) Reading practice with auto-grading",
+      "topics": [
+        "assessment",
+        "chinese"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-19T03:21:28Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/PracRead",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "HanziQuery",
+      "full_name": "MrWengKB/HanziQuery",
+      "description": "小学华文识读字查询系统（欢乐伙伴2.0） Chinese characters query system (for 2024 new syllabus)",
+      "topics": [
+        "chinese",
+        "chinese-characters",
+        "chinese-language",
+        "chinese-simplified",
+        "hlhb",
+        "huanlehuoban",
+        "search",
+        "teaching",
+        "teaching-materials",
+        "teaching-resources",
+        "teaching-tool",
+        "teaching-tools",
+        "tool",
+        "word-library",
+        "word-list",
+        "word-lists",
+        "wordlist",
+        "wordlists"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-19T03:20:38Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/HanziQuery",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "iSubmit",
+      "full_name": "MrWengKB/iSubmit",
+      "description": "让学生提交作业而不会看到同学的作业。 Work submission portal where students cannot view their classmates' submissions.",
+      "topics": [
+        "chinese",
+        "english",
+        "malay",
+        "multilingual",
+        "tamil",
+        "tool"
+      ],
+      "language": "HTML",
+      "updated_at": "2026-11-18T02:15:31Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/iSubmit",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "blog",
+      "full_name": "MrWengKB/blog",
+      "description": "我的博客",
+      "topics": [
+        "blog",
+        "chinese",
+        "japanese"
+      ],
+      "language": "HTML",
+      "updated_at": "2026-11-18T02:14:57Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/blog",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "ELMiner",
+      "full_name": "MrWengKB/ELMiner",
+      "description": "A mining game for self-study and practice",
+      "topics": [
+        "english",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-18T02:12:52Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/ELMiner",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "ELAdventure",
+      "full_name": "MrWengKB/ELAdventure",
+      "description": "Monopoly + Capybara GO. Answer questions to start a new day, but luck plays a role too!",
+      "topics": [
+        "english",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-18T02:12:37Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/ELAdventure",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "mrwengkb.github.io",
+      "full_name": "MrWengKB/mrwengkb.github.io",
+      "description": "目录",
+      "topics": [],
+      "language": "JavaScript",
+      "updated_at": "2026-11-16T10:30:09Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/mrwengkb.github.io",
+      "has_pages": true,
+      "default_branch": "main"
+    }
+  ]
+}
