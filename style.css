@@ -187,6 +187,21 @@ h1 {
   border-color: #b1bac4;
 }
 
+.btn-disabled {
+  background-color: #f6f8fa;
+  color: var(--meta);
+  border: 1px dashed var(--border);
+  cursor: not-allowed;
+}
+
+.pill-link {
+  text-decoration: none;
+}
+
+.pill-link:hover {
+  border-color: #b1bac4;
+}
+
 .state-message {
   text-align: center;
   padding: 4rem 1rem;

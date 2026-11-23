@@ -1,4 +1,9 @@
-自动生成并随时更新我的GitHub网页列表。
+自动生成并随时更新我的GitHub项目列表。
+
+## 网页与应用
+
+- 开启了 GitHub Pages 的仓库：按钮是“访问站点”，图标用站点根目录的 `favicon.svg`。
+- 没开 Pages 的仓库（应用）：按钮是“下载安装”，直接下载最新 Release 里的安装包（优先 `.apk`，其次 `.exe`、`.dmg` 等）；还没有 Release 时显示“暂无安装包”。图标依次尝试仓库里的 `mipmap-xxxhdpi/ic_launcher.png`、`icons/icon-512.png`、Android 自适应图标 `mipmap-anydpi-v26/ic_launcher.xml`（在浏览器里转成 SVG）和 `favicon.svg`。
 
 ## 分类
 

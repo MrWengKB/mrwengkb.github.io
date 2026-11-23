@@ -34,21 +34,24 @@ const I18N = {
     loadFailed: (msg) => `加载失败: ${msg}`,
     apiFailed: (status) => `API 访问失败: HTTP ${status}`,
     fetchFailed: "获取失败",
-    empty: "未发现开启了 Pages 的其他公开仓库。",
-    count: (n) => `共找到 ${n} 个站点`,
+    empty: "未发现其他公开仓库。",
+    count: (n) => `共找到 ${n} 个项目`,
     noDesc: "暂无描述信息",
     updated: (d) => `更新于: ${d}`,
     visit: "访问站点",
+    download: "下载安装",
+    noRelease: "暂无安装包",
+    downloadTitle: (name) => `下载 ${name}`,
     source: "源码仓库",
     toggleLabel: "EN",
     toggleAria: "Switch to English",
     all: "全部",
     filterAria: "按分类筛选",
-    emptyCategory: "这个分类下暂时没有站点。",
+    emptyCategory: "这个分类下暂时没有项目。",
     searchPlaceholder: "搜索名称、描述、标签…",
     searchAria: "搜索项目",
-    noMatch: (q) => `没有找到与“${q}”相关的站点。`,
-    matchCount: (n) => `找到 ${n} 个匹配的站点`,
+    noMatch: (q) => `没有找到与“${q}”相关的项目。`,
+    matchCount: (n) => `找到 ${n} 个匹配的项目`,
     avatarAlt: (u) => `${u} 的 GitHub 头像`,
     dateLocale: "zh-CN",
   },
@@ -61,21 +64,24 @@ const I18N = {
     loadFailed: (msg) => `Couldn't load projects: ${msg}`,
     apiFailed: (status) => `GitHub API request failed: HTTP ${status}`,
     fetchFailed: "Load failed",
-    empty: "No other public repositories with Pages enabled.",
-    count: (n) => `${n} site${n === 1 ? "" : "s"} found`,
+    empty: "No other public repositories.",
+    count: (n) => `${n} project${n === 1 ? "" : "s"} found`,
     noDesc: "No description",
     updated: (d) => `Updated ${d}`,
     visit: "Visit site",
+    download: "Download",
+    noRelease: "No release yet",
+    downloadTitle: (name) => `Download ${name}`,
     source: "Source code",
     toggleLabel: "中文",
     toggleAria: "切换到中文",
     all: "All",
     filterAria: "Filter by category",
-    emptyCategory: "No sites in this category yet.",
+    emptyCategory: "No projects in this category yet.",
     searchPlaceholder: "Search name, description, topics…",
     searchAria: "Search projects",
-    noMatch: (q) => `No sites match “${q}”.`,
-    matchCount: (n) => `${n} matching site${n === 1 ? "" : "s"}`,
+    noMatch: (q) => `No projects match “${q}”.`,
+    matchCount: (n) => `${n} matching project${n === 1 ? "" : "s"}`,
     avatarAlt: (u) => `${u}'s GitHub avatar`,
     dateLocale: "en-US",
   },
@@ -313,7 +319,7 @@ function renderCategoryBar() {
   });
 }
 
-async function fetchPagesRepos() {
+async function fetchRepos() {
   try {
     const res = await fetch(
       `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`
@@ -325,11 +331,7 @@ async function fetchPagesRepos() {
       throw err;
     }
 
-    const repos = await res.json();
-
-    // 筛选开启了 GitHub Pages 的公开仓库
-    const pagesRepos = repos.filter((repo) => {
-      if (!repo.has_pages) return false;
+    const repos = (await res.json()).filter((repo) => {
       if (
         EXCLUDE_HOME_REPO &&
         repo.name.toLowerCase() === `${GITHUB_USERNAME.toLowerCase()}.github.io`
@@ -342,11 +344,39 @@ async function fetchPagesRepos() {
       return true;
     });
 
-    state = { status: "done", repos: pagesRepos, error: null };
+    // 没开 Pages 的仓库当作应用：读取最新 Release 里的安装包
+    await Promise.all(
+      repos.filter((repo) => !repo.has_pages).map(async (repo) => {
+        repo._release = await fetchLatestRelease(repo);
+      })
+    );
+
+    state = { status: "done", repos, error: null };
   } catch (err) {
     state = { status: "error", repos: [], error: err };
   }
   render();
+}
+
+// 安装包优先级：越靠前越优先
+const INSTALLER_EXTS = [".apk", ".aab", ".exe", ".msi", ".dmg", ".pkg", ".appimage", ".deb", ".rpm", ".ipa", ".zip"];
+
+async function fetchLatestRelease(repo) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo.full_name}/releases/latest`);
+    if (!res.ok) return null;
+    const release = await res.json();
+    const assets = release.assets || [];
+    const rank = (a) => {
+      const name = a.name.toLowerCase();
+      const i = INSTALLER_EXTS.findIndex((ext) => name.endsWith(ext));
+      return i === -1 ? INSTALLER_EXTS.length : i;
+    };
+    const asset = assets.slice().sort((x, y) => rank(x) - rank(y))[0] || null;
+    return { tag: release.tag_name, url: release.html_url, asset };
+  } catch (e) {
+    return null;
+  }
 }
 
 function renderList(allRepos) {
@@ -371,7 +401,18 @@ function renderList(allRepos) {
   container.innerHTML = "";
 
   repos.forEach((repo) => {
+    const isApp = !repo.has_pages;
     const pageUrl = `https://${GITHUB_USERNAME}.github.io/${repo.name}/`;
+    const release = repo._release;
+    const asset = release && release.asset;
+    let primary;
+    if (!isApp) {
+      primary = `<a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${t.visit}</a>`;
+    } else if (asset) {
+      primary = `<a href="${escapeHTML(asset.browser_download_url)}" class="btn btn-primary" download title="${escapeHTML(t.downloadTitle(asset.name))}">${t.download}</a>`;
+    } else {
+      primary = `<span class="btn btn-disabled" aria-disabled="true">${t.noRelease}</span>`;
+    }
     const updatedDate = new Date(repo.updated_at).toLocaleDateString(t.dateLocale);
 
     const card = document.createElement("div");
@@ -384,16 +425,19 @@ function renderList(allRepos) {
       <div>
         <div class="card-meta">
           ${repo.language ? `<span class="pill">${escapeHTML(repo.language)}</span>` : ""}
+          ${release && release.tag ? `<a class="pill pill-link" href="${escapeHTML(release.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(release.tag)}</a>` : ""}
           <span>${t.updated(updatedDate)}</span>
           ${repo.stargazers_count > 0 ? `<span>★ ${repo.stargazers_count}</span>` : ""}
         </div>
         <div class="card-links">
-          <a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${t.visit}</a>
+          ${primary}
           <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">${t.source}</a>
         </div>
       </div>
     `;
-    loadFavicon(card.querySelector(".card-icon"), pageUrl);
+    const icon = card.querySelector(".card-icon");
+    if (isApp) loadAppIcon(icon, repo);
+    else loadFavicon(icon, pageUrl);
     container.appendChild(card);
   });
 }
@@ -408,6 +452,216 @@ function loadFavicon(img, pageUrl) {
   img.src = pageUrl + "favicon.svg";
 }
 
+// ---------- 应用图标 ----------
+// 从仓库里找应用图标：先找 PNG/WebP 启动图标，再把 Android 自适应图标（XML 矢量）转成 SVG，
+// 最后退回仓库里的 favicon.svg 或主页自己的图标。结果按仓库缓存，切换语言/分类时不重复请求。
+const ANDROID_RES_DIRS = ["app/src/main/res", "android/app/src/main/res"];
+const appIconCache = new Map();
+
+function rawUrl(repo, path) {
+  return `https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/${path}`;
+}
+
+async function fetchRaw(repo, path, asText) {
+  try {
+    const res = await fetch(rawUrl(repo, path));
+    if (!res.ok) return null;
+    return asText ? await res.text() : await res.blob();
+  } catch (e) {
+    return null;
+  }
+}
+
+function loadAppIcon(img, repo) {
+  if (!appIconCache.has(repo.full_name)) appIconCache.set(repo.full_name, resolveAppIcon(repo));
+  img.onerror = () => img.remove();
+  appIconCache.get(repo.full_name).then((src) => {
+    img.src = src;
+  });
+}
+
+async function resolveAppIcon(repo) {
+  // 1. 位图启动图标
+  const bitmaps = [];
+  for (const res of ANDROID_RES_DIRS) {
+    for (const name of ["ic_launcher", "ic_launcher_round"]) {
+      for (const ext of ["png", "webp"]) bitmaps.push(`${res}/mipmap-xxxhdpi/${name}.${ext}`);
+    }
+  }
+  bitmaps.push("icons/icon-512.png", "icon.png", "logo.png");
+  for (const path of bitmaps) {
+    const blob = await fetchRaw(repo, path);
+    if (blob && blob.size > 0) return URL.createObjectURL(blob);
+  }
+  // 2. Android 自适应图标（XML）
+  for (const res of ANDROID_RES_DIRS) {
+    for (const dir of ["mipmap-anydpi-v26", "mipmap-anydpi"]) {
+      const xml = await fetchRaw(repo, `${res}/${dir}/ic_launcher.xml`, true);
+      if (!xml) continue;
+      const svg = await adaptiveIconToSVG(repo, res, xml).catch(() => null);
+      if (svg) return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    }
+  }
+  // 3. 仓库根目录的 favicon.svg，再不行用主页图标
+  const fav = await fetchRaw(repo, "favicon.svg");
+  if (fav && fav.size > 0) return URL.createObjectURL(fav);
+  return DEFAULT_FAVICON;
+}
+
+const ANDROID_NS = "http://schemas.android.com/apk/res/android";
+const aAttr = (el, name) => el.getAttributeNS(ANDROID_NS, name) ?? el.getAttribute("android:" + name);
+
+function parseXML(text) {
+  const doc = new DOMParser().parseFromString(text, "application/xml");
+  return doc.querySelector("parsererror") ? null : doc.documentElement;
+}
+
+// #RGB / #ARGB / #RRGGBB / #AARRGGBB → { color, opacity }
+function androidColor(value) {
+  if (!value || value[0] !== "#") return null;
+  let hex = value.slice(1);
+  if (hex.length === 3 || hex.length === 4) hex = hex.split("").map((c) => c + c).join("");
+  let alpha = 1;
+  if (hex.length === 8) {
+    alpha = parseInt(hex.slice(0, 2), 16) / 255;
+    hex = hex.slice(2);
+  }
+  if (hex.length !== 6) return null;
+  return { color: "#" + hex, opacity: alpha };
+}
+
+// 把 @color/xxx 解析成颜色值（在 values/*.xml 里找）
+async function makeColorResolver(repo, res) {
+  let colors = null;
+  return async (value) => {
+    if (!value || !value.startsWith("@color/")) return androidColor(value);
+    if (!colors) {
+      colors = {};
+      for (const file of ["ic_launcher_background.xml", "colors.xml"]) {
+        const text = await fetchRaw(repo, `${res}/values/${file}`, true);
+        const root = text && parseXML(text);
+        if (!root) continue;
+        root.querySelectorAll("color").forEach((c) => {
+          colors[c.getAttribute("name")] = c.textContent.trim();
+        });
+      }
+    }
+    const v = colors[value.slice(7)];
+    return v ? androidColor(v.startsWith("@color/") ? colors[v.slice(7)] : v) : null;
+  };
+}
+
+async function fetchDrawableXML(repo, res, name) {
+  for (const dir of ["drawable", "drawable-v24", "drawable-anydpi", "drawable-anydpi-v26", "mipmap-anydpi-v26"]) {
+    const text = await fetchRaw(repo, `${res}/${dir}/${name}.xml`, true);
+    const root = text && parseXML(text);
+    if (root) return root;
+  }
+  return null;
+}
+
+const svgNum = (v, d) => (v == null || v === "" ? d : parseFloat(v));
+
+// Android <vector> → SVG 片段（嵌套 <svg>，铺满 x,y,size 的方块）
+async function vectorToSVG(vector, resolveColor, x, y, size) {
+  const vw = svgNum(aAttr(vector, "viewportWidth"), 24);
+  const vh = svgNum(aAttr(vector, "viewportHeight"), 24);
+
+  async function paint(colorAttr, alphaAttr) {
+    const c = await resolveColor(colorAttr);
+    if (!c) return null;
+    return { color: c.color, opacity: c.opacity * svgNum(alphaAttr, 1) };
+  }
+
+  async function children(el) {
+    let out = "";
+    const nodes = Array.from(el.children);
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      const tag = node.localName;
+      if (tag === "path") {
+        const d = aAttr(node, "pathData");
+        if (!d) continue;
+        const fill = await paint(aAttr(node, "fillColor"), aAttr(node, "fillAlpha"));
+        const stroke = await paint(aAttr(node, "strokeColor"), aAttr(node, "strokeAlpha"));
+        let attrs = `d="${escapeHTML(d)}"`;
+        attrs += fill ? ` fill="${fill.color}" fill-opacity="${fill.opacity}"` : ` fill="none"`;
+        if (aAttr(node, "fillType") === "evenOdd") attrs += ` fill-rule="evenodd"`;
+        if (stroke) {
+          attrs += ` stroke="${stroke.color}" stroke-opacity="${stroke.opacity}" stroke-width="${svgNum(aAttr(node, "strokeWidth"), 0)}"`;
+          const cap = aAttr(node, "strokeLineCap");
+          const join = aAttr(node, "strokeLineJoin");
+          if (cap) attrs += ` stroke-linecap="${cap}"`;
+          if (join) attrs += ` stroke-linejoin="${join}"`;
+        }
+        out += `<path ${attrs}/>`;
+      } else if (tag === "group") {
+        const px = svgNum(aAttr(node, "pivotX"), 0);
+        const py = svgNum(aAttr(node, "pivotY"), 0);
+        const tx = svgNum(aAttr(node, "translateX"), 0);
+        const ty = svgNum(aAttr(node, "translateY"), 0);
+        const sx = svgNum(aAttr(node, "scaleX"), 1);
+        const sy = svgNum(aAttr(node, "scaleY"), 1);
+        const r = svgNum(aAttr(node, "rotation"), 0);
+        const transform = `translate(${px + tx} ${py + ty}) rotate(${r}) scale(${sx} ${sy}) translate(${-px} ${-py})`;
+        out += `<g transform="${transform}">${await children(node)}</g>`;
+      } else if (tag === "clip-path") {
+        // clip-path 作用于同一组里它后面的兄弟节点
+        const id = "c" + Math.random().toString(36).slice(2);
+        const rest = document.createElement("g");
+        nodes.slice(i + 1).forEach((n) => rest.appendChild(n.cloneNode(true)));
+        out += `<clipPath id="${id}"><path d="${escapeHTML(aAttr(node, "pathData") || "")}"/></clipPath>`;
+        out += `<g clip-path="url(#${id})">${await children(rest)}</g>`;
+        break;
+      }
+    }
+    return out;
+  }
+
+  return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="none">${await children(vector)}</svg>`;
+}
+
+// 自适应图标：背景 + 前景各 108dp，可见区域是中间的 72dp
+async function adaptiveIconToSVG(repo, res, xml) {
+  const root = parseXML(xml);
+  if (!root || root.localName !== "adaptive-icon") return null;
+  const resolveColor = await makeColorResolver(repo, res);
+
+  async function layer(tag) {
+    const el = root.querySelector(tag);
+    if (!el) return "";
+    let ref = aAttr(el, "drawable");
+    let inline = null;
+    if (!ref) inline = el.querySelector("vector, inset");
+    if (ref) {
+      const color = await resolveColor(ref);
+      if (color) return `<rect width="108" height="108" fill="${color.color}" fill-opacity="${color.opacity}"/>`;
+      const m = ref.match(/^@(drawable|mipmap)\/(.+)$/);
+      if (!m) return "";
+      inline = await fetchDrawableXML(repo, res, m[2]);
+      if (!inline) return "";
+    }
+    if (inline && inline.localName === "inset") {
+      // <inset android:inset="16%"> 包着 drawable：按比例缩小居中
+      const insetAttr = aAttr(inline, "inset") || "0";
+      const ratio = insetAttr.endsWith("%") ? parseFloat(insetAttr) / 100 : 0;
+      const innerRef = aAttr(inline, "drawable");
+      const m = innerRef && innerRef.match(/^@(drawable|mipmap)\/(.+)$/);
+      const inner = m ? await fetchDrawableXML(repo, res, m[2]) : inline.querySelector("vector");
+      if (!inner || inner.localName !== "vector") return "";
+      const pad = 108 * ratio;
+      return vectorToSVG(inner, resolveColor, pad, pad, 108 - 2 * pad);
+    }
+    if (inline && inline.localName === "vector") return vectorToSVG(inline, resolveColor, 0, 0, 108);
+    return "";
+  }
+
+  const bg = await layer("background");
+  const fg = await layer("foreground");
+  if (!bg && !fg) return null;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72" width="72" height="72">${bg}${fg}</svg>`;
+}
+
 function escapeHTML(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -418,4 +672,4 @@ function escapeHTML(str) {
 }
 
 render();
-fetchPagesRepos();
+fetchRepos();
