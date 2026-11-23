@@ -319,64 +319,115 @@ function renderCategoryBar() {
   });
 }
 
+// 数据来源（按顺序尝试）：
+// 1. repos.json：由 GitHub Actions（.github/workflows/update-repos.yml）每小时生成，打开主页不调用 API；
+// 2. 直接调用 GitHub API（未登录每个 IP 每小时 60 次），结果在浏览器里缓存 API_CACHE_MINUTES 分钟。
+const REPOS_JSON = "repos.json";
+const API_CACHE_KEY = "pages-nav-api-cache";
+const API_CACHE_MINUTES = 10;
+
 async function fetchRepos() {
   try {
-    const res = await fetch(
-      `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`
-    );
-
-    if (!res.ok) {
-      const err = new Error();
-      err.httpStatus = res.status;
-      throw err;
-    }
-
-    const repos = (await res.json()).filter((repo) => {
-      if (
-        EXCLUDE_HOME_REPO &&
-        repo.name.toLowerCase() === `${GITHUB_USERNAME.toLowerCase()}.github.io`
-      ) {
-        return false;
-      }
-      if (EXCLUDE_REPOS.some((name) => name.toLowerCase() === repo.name.toLowerCase())) {
-        return false;
-      }
-      return true;
-    });
-
-    // 没开 Pages 的仓库当作应用：读取最新 Release 里的安装包
-    await Promise.all(
-      repos.filter((repo) => !repo.has_pages).map(async (repo) => {
-        repo._release = await fetchLatestRelease(repo);
-      })
-    );
-
-    state = { status: "done", repos, error: null };
+    const repos = (await loadReposJSON()) || (await loadReposFromAPI());
+    state = { status: "done", repos: repos.filter(isListed), error: null };
   } catch (err) {
     state = { status: "error", repos: [], error: err };
   }
   render();
 }
 
-// 安装包优先级：越靠前越优先
-const INSTALLER_EXTS = [".apk", ".aab", ".exe", ".msi", ".dmg", ".pkg", ".appimage", ".deb", ".rpm", ".ipa", ".zip"];
+function isListed(repo) {
+  if (
+    EXCLUDE_HOME_REPO &&
+    repo.name.toLowerCase() === `${GITHUB_USERNAME.toLowerCase()}.github.io`
+  ) {
+    return false;
+  }
+  return !EXCLUDE_REPOS.some((name) => name.toLowerCase() === repo.name.toLowerCase());
+}
 
-async function fetchLatestRelease(repo) {
+async function loadReposJSON() {
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo.full_name}/releases/latest`);
+    const res = await fetch(REPOS_JSON, { cache: "no-cache" });
     if (!res.ok) return null;
-    const release = await res.json();
-    const assets = release.assets || [];
-    const rank = (a) => {
-      const name = a.name.toLowerCase();
-      const i = INSTALLER_EXTS.findIndex((ext) => name.endsWith(ext));
-      return i === -1 ? INSTALLER_EXTS.length : i;
-    };
-    const asset = assets.slice().sort((x, y) => rank(x) - rank(y))[0] || null;
-    return { tag: release.tag_name, url: release.html_url, asset };
+    const data = await res.json();
+    return Array.isArray(data.repos) && data.repos.length ? data.repos : null;
   } catch (e) {
     return null;
   }
+}
+
+async function loadReposFromAPI() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(API_CACHE_KEY) || "null");
+    if (cached && Date.now() - cached.time < API_CACHE_MINUTES * 60 * 1000) return cached.repos;
+  } catch (e) {}
+
+  const res = await fetch(
+    `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`
+  );
+  if (!res.ok) {
+    const err = new Error();
+    err.httpStatus = res.status;
+    throw err;
+  }
+  const repos = (await res.json()).filter(isListed).map(slimRepo);
+
+  // 没开 Pages 的仓库当作应用：读取最新 Release
+  await Promise.all(
+    repos.filter((repo) => !repo.has_pages).map(async (repo) => {
+      repo.release = await fetchLatestRelease(repo.full_name);
+    })
+  );
+
+  try {
+    localStorage.setItem(API_CACHE_KEY, JSON.stringify({ time: Date.now(), repos }));
+  } catch (e) {}
+  return repos;
+}
+
+// 只保留页面用到的字段（repos.json 的格式与此相同）
+function slimRepo(r) {
+  return {
+    name: r.name,
+    full_name: r.full_name,
+    description: r.description,
+    topics: r.topics || [],
+    language: r.language,
+    updated_at: r.updated_at,
+    stargazers_count: r.stargazers_count,
+    html_url: r.html_url,
+    has_pages: r.has_pages,
+    default_branch: r.default_branch,
+  };
+}
+
+async function fetchLatestRelease(fullName) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${fullName}/releases/latest`);
+    if (!res.ok) return null;
+    const r = await res.json();
+    return {
+      tag: r.tag_name,
+      url: r.html_url,
+      assets: (r.assets || []).map((a) => ({ name: a.name, url: a.browser_download_url })),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// 安装包优先级：越靠前越优先
+const INSTALLER_EXTS = [".apk", ".aab", ".exe", ".msi", ".dmg", ".pkg", ".appimage", ".deb", ".rpm", ".ipa", ".zip"];
+
+function pickInstaller(release) {
+  if (!release || !release.assets) return null;
+  const rank = (a) => {
+    const name = a.name.toLowerCase();
+    const i = INSTALLER_EXTS.findIndex((ext) => name.endsWith(ext));
+    return i === -1 ? INSTALLER_EXTS.length : i;
+  };
+  return release.assets.slice().sort((x, y) => rank(x) - rank(y))[0] || null;
 }
 
 function renderList(allRepos) {
@@ -403,13 +454,13 @@ function renderList(allRepos) {
   repos.forEach((repo) => {
     const isApp = !repo.has_pages;
     const pageUrl = `https://${GITHUB_USERNAME}.github.io/${repo.name}/`;
-    const release = repo._release;
-    const asset = release && release.asset;
+    const release = repo.release;
+    const asset = pickInstaller(release);
     let primary;
     if (!isApp) {
       primary = `<a href="${pageUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${t.visit}</a>`;
     } else if (asset) {
-      primary = `<a href="${escapeHTML(asset.browser_download_url)}" class="btn btn-primary" download title="${escapeHTML(t.downloadTitle(asset.name))}">${t.download}</a>`;
+      primary = `<a href="${escapeHTML(asset.url)}" class="btn btn-primary" download title="${escapeHTML(t.downloadTitle(asset.name))}">${t.download}</a>`;
     } else {
       primary = `<span class="btn btn-disabled" aria-disabled="true">${t.noRelease}</span>`;
     }

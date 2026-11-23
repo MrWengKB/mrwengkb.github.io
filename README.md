@@ -5,6 +5,11 @@
 - 开启了 GitHub Pages 的仓库：按钮是“访问站点”，图标用站点根目录的 `favicon.svg`。
 - 没开 Pages 的仓库（应用）：按钮是“下载安装”，直接下载最新 Release 里的安装包（优先 `.apk`，其次 `.exe`、`.dmg` 等）；还没有 Release 时显示“暂无安装包”。图标依次尝试仓库里的 `mipmap-xxxhdpi/ic_launcher.png`、`icons/icon-512.png`、Android 自适应图标 `mipmap-anydpi-v26/ic_launcher.xml`（在浏览器里转成 SVG）和 `favicon.svg`。
 
+## 数据与 API 限额
+
+- `repos.json` 由 GitHub Actions（`.github/workflows/update-repos.yml`）每小时自动生成，主页优先读它，访客打开主页时不调用 GitHub API。想立即刷新（比如刚发了新 Release），在 Actions 里手动运行 **Update repos.json**。
+- 如果 `repos.json` 还没生成或读取失败，主页会退回直接调用 GitHub API，结果在浏览器里缓存 10 分钟。
+
 ## 分类
 
 页面顶部的分类按钮依据仓库的 Topics（主题标签）：在仓库主页右侧 About 的齿轮里添加 `game` 或 `tool` 即可归入“游戏”或“工具”。新增分类时，在 `script.js` 的 `CATEGORIES` 里加一行，例如：

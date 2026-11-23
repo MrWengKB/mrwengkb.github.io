@@ -1,0 +1,57 @@
+name: Update repos.json
+
+# 每小时把仓库列表和各应用的最新 Release 写进 repos.json，主页读这个文件，访客打开时不调用 GitHub API。
+# 想立刻刷新：在 Actions 页面选这个工作流，点 Run workflow。
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/scripts/update-repos.mjs
+      - .github/workflows/update-repos.yml
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency: update-repos
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate repos.json
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+        run: node .github/scripts/update-repos.mjs
+
+      - name: Commit if changed
+        id: commit
+        run: |
+          if git diff --quiet -- repos.json && git ls-files --error-unmatch repos.json > /dev/null 2>&1; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repos.json
+          git commit -m "Update repos.json"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # 机器人推送的提交不一定会触发 Pages 重新构建，这里显式请求一次
+      - name: Rebuild Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "::warning::Pages rebuild request failed; it will pick up repos.json on the next build."
