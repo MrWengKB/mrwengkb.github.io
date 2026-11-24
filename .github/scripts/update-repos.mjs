@@ -34,6 +34,7 @@ const repos = all
     topics: r.topics || [],
     language: r.language,
     updated_at: r.updated_at,
+    pushed_at: r.pushed_at,
     stargazers_count: r.stargazers_count,
     html_url: r.html_url,
     has_pages: r.has_pages,

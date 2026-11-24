@@ -319,19 +319,26 @@ function renderCategoryBar() {
   });
 }
 
-// 数据来源（按顺序尝试）：
-// 1. repos.json：由 GitHub Actions（.github/workflows/update-repos.yml）每小时生成，打开主页不调用 API；
-// 2. 直接调用 GitHub API（未登录每个 IP 每小时 60 次），结果在浏览器里缓存 API_CACHE_MINUTES 分钟。
+// 数据来源：
+// 1. repos.json：由 GitHub Actions（.github/workflows/update-repos.yml）定时生成，先用它立即显示；
+// 2. 再调 1 次 GitHub API 拿最新仓库列表，补上 repos.json 里还没有的新仓库；
+//    只有新出现或有新推送的应用才额外查它的 Release。结果在浏览器里缓存 API_CACHE_MINUTES 分钟，
+//    API 失败（如超出未登录每小时 60 次的限额）时继续用 repos.json。
 const REPOS_JSON = "repos.json";
-const API_CACHE_KEY = "pages-nav-api-cache";
+const API_CACHE_KEY = "pages-nav-api-cache-v2";
 const API_CACHE_MINUTES = 10;
 
 async function fetchRepos() {
+  const snapshot = await loadReposJSON();
+  if (snapshot) {
+    state = { status: "done", repos: snapshot.filter(isListed), error: null };
+    render();
+  }
   try {
-    const repos = (await loadReposJSON()) || (await loadReposFromAPI());
-    state = { status: "done", repos: repos.filter(isListed), error: null };
+    const live = await loadReposLive(snapshot || []);
+    state = { status: "done", repos: live.filter(isListed), error: null };
   } catch (err) {
-    state = { status: "error", repos: [], error: err };
+    if (!snapshot) state = { status: "error", repos: [], error: err };
   }
   render();
 }
@@ -357,7 +364,7 @@ async function loadReposJSON() {
   }
 }
 
-async function loadReposFromAPI() {
+async function loadReposLive(snapshot) {
   try {
     const cached = JSON.parse(localStorage.getItem(API_CACHE_KEY) || "null");
     if (cached && Date.now() - cached.time < API_CACHE_MINUTES * 60 * 1000) return cached.repos;
@@ -371,12 +378,18 @@ async function loadReposFromAPI() {
     err.httpStatus = res.status;
     throw err;
   }
+  const known = new Map(snapshot.map((r) => [r.full_name, r]));
   const repos = (await res.json()).filter(isListed).map(slimRepo);
 
-  // 没开 Pages 的仓库当作应用：读取最新 Release
+  // 应用（没开 Pages）的 Release：repos.json 里有、且之后没有新推送的，直接沿用
   await Promise.all(
     repos.filter((repo) => !repo.has_pages).map(async (repo) => {
-      repo.release = await fetchLatestRelease(repo.full_name);
+      const old = known.get(repo.full_name);
+      if (old && "release" in old && old.pushed_at && old.pushed_at === repo.pushed_at) {
+        repo.release = old.release;
+      } else {
+        repo.release = await fetchLatestRelease(repo.full_name);
+      }
     })
   );
 
@@ -395,6 +408,7 @@ function slimRepo(r) {
     topics: r.topics || [],
     language: r.language,
     updated_at: r.updated_at,
+    pushed_at: r.pushed_at,
     stargazers_count: r.stargazers_count,
     html_url: r.html_url,
     has_pages: r.has_pages,

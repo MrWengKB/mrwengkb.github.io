@@ -7,8 +7,8 @@
 
 ## 数据与 API 限额
 
-- `repos.json` 由 GitHub Actions（`.github/workflows/update-repos.yml`）每小时自动生成，主页优先读它，访客打开主页时不调用 GitHub API。想立即刷新（比如刚发了新 Release），在 Actions 里手动运行 **Update repos.json**。
-- 如果 `repos.json` 还没生成或读取失败，主页会退回直接调用 GitHub API，结果在浏览器里缓存 10 分钟。
+- `repos.json` 由 GitHub Actions（`.github/workflows/update-repos.yml`）定时生成，主页先用它立即显示列表。GitHub 的定时任务不保证准点，想立即刷新可以在 Actions 里手动运行 **Update repos.json**。
+- 之后主页再调 1 次 GitHub API 拿最新仓库列表，所以新建的仓库不用等定时任务也会出现；只有新出现或有新推送的应用才会额外查它的 Release。结果在浏览器里缓存 10 分钟，API 不可用时继续用 `repos.json`。
 
 ## 分类
 
