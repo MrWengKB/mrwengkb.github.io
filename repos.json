@@ -1,6 +1,31 @@
 {
   "repos": [
     {
+      "name": "SmartTVControl",
+      "full_name": "MrWengKB/SmartTVControl",
+      "description": "An easy-to-use app that acts as a remote control for smart TVs. Support for different TV OSes will be added incrementally.",
+      "topics": [
+        "english",
+        "tool"
+      ],
+      "language": "Kotlin",
+      "updated_at": "2026-11-24T03:13:37Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/SmartTVControl",
+      "has_pages": false,
+      "default_branch": "main",
+      "release": {
+        "tag": "v0.2.2",
+        "url": "https://github.com/MrWengKB/SmartTVControl/releases/tag/v0.2.2",
+        "assets": [
+          {
+            "name": "SmartTVControl-v0.2.2.apk",
+            "url": "https://github.com/MrWengKB/SmartTVControl/releases/download/v0.2.2/SmartTVControl-v0.2.2.apk"
+          }
+        ]
+      }
+    },
+    {
       "name": "webOSControl",
       "full_name": "MrWengKB/webOSControl",
       "description": "A remote control app for webOS TV.",
@@ -16,12 +41,12 @@
       "has_pages": false,
       "default_branch": "main",
       "release": {
-        "tag": "v0.1.1",
-        "url": "https://github.com/MrWengKB/webOSControl/releases/tag/v0.1.1",
+        "tag": "v0.1.9",
+        "url": "https://github.com/MrWengKB/webOSControl/releases/tag/v0.1.9",
         "assets": [
           {
-            "name": "webOSControl-v0.1.1.apk",
-            "url": "https://github.com/MrWengKB/webOSControl/releases/download/v0.1.1/webOSControl-v0.1.1.apk"
+            "name": "webOSControl-v0.1.9.apk",
+            "url": "https://github.com/MrWengKB/webOSControl/releases/download/v0.1.9/webOSControl-v0.1.9.apk"
           }
         ]
       }
