@@ -1,6 +1,22 @@
 {
   "repos": [
     {
+      "name": "HoneycombWar",
+      "full_name": "MrWengKB/HoneycombWar",
+      "description": "A turn-based game on a hexagon board.",
+      "topics": [
+        "english",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-24T15:50:05Z",
+      "pushed_at": "2026-11-24T18:45:22Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/HoneycombWar",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
       "name": "SmartTVControl",
       "full_name": "MrWengKB/SmartTVControl",
       "description": "An easy-to-use app that acts as a remote control for smart TVs. Support for different TV OSes will be added subsequenly.",
@@ -367,7 +383,7 @@
       "topics": [],
       "language": "JavaScript",
       "updated_at": "2026-11-16T10:30:09Z",
-      "pushed_at": "2026-11-24T06:12:17Z",
+      "pushed_at": "2026-11-24T15:58:34Z",
       "stargazers_count": 0,
       "html_url": "https://github.com/MrWengKB/mrwengkb.github.io",
       "has_pages": true,
