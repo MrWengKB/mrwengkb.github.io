@@ -135,6 +135,8 @@ function applyStaticText() {
     langToggle.textContent = t.toggleLabel;
     langToggle.setAttribute("aria-label", t.toggleAria);
   }
+  const privacyLink = document.getElementById("privacy-link");
+  if (privacyLink) privacyLink.textContent = t.htmlLang === "en" ? "Privacy Policy" : "隐私政策";
   if (searchInput) {
     searchInput.placeholder = t.searchPlaceholder;
     searchInput.setAttribute("aria-label", t.searchAria);
