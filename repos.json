@@ -1,16 +1,68 @@
 {
   "repos": [
     {
+      "name": "OracleMatch",
+      "full_name": "MrWengKB/OracleMatch",
+      "description": "汉字小时候：你认识它们吗？ (Chinese) Do you recognize the characters in their youth?",
+      "topics": [
+        "assessment",
+        "chinese",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-26T07:04:02Z",
+      "pushed_at": "2026-11-26T08:20:12Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/OracleMatch",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "HanziMatch",
+      "full_name": "MrWengKB/HanziMatch",
+      "description": "汉字拼音配对游戏 (Chinese) Match a character with its hanyu pinyin.",
+      "topics": [
+        "assessment",
+        "chinese",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-26T07:03:10Z",
+      "pushed_at": "2026-11-26T06:40:47Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/HanziMatch",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
+      "name": "HanziBattle",
+      "full_name": "MrWengKB/HanziBattle",
+      "description": "汉字对决：答对就有糖果吃！🍬🍭🍰 (Chinese) Character battles: answer correctly to win candies!",
+      "topics": [
+        "assessment",
+        "chinese",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-26T07:02:45Z",
+      "pushed_at": "2026-11-26T08:20:03Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/HanziBattle",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
       "name": "HoneycombWar",
       "full_name": "MrWengKB/HoneycombWar",
-      "description": "A turn-based game on a hexagon board.",
+      "description": "A turn-based board game on a hexagon board. 蜂窝战争：回合制策略棋盘类游戏。",
       "topics": [
+        "chinese",
         "english",
         "game"
       ],
       "language": "JavaScript",
-      "updated_at": "2026-11-24T15:50:05Z",
-      "pushed_at": "2026-11-25T23:28:08Z",
+      "updated_at": "2026-11-26T05:49:41Z",
+      "pushed_at": "2026-11-26T05:39:28Z",
       "stargazers_count": 0,
       "html_url": "https://github.com/MrWengKB/HoneycombWar",
       "has_pages": true,
@@ -212,22 +264,6 @@
       "default_branch": "main"
     },
     {
-      "name": "HanziMatch",
-      "full_name": "MrWengKB/HanziMatch",
-      "description": "汉字拼音配对游戏 (Chinese) Match a character with its hanyu pinyin.",
-      "topics": [
-        "chinese",
-        "game"
-      ],
-      "language": "JavaScript",
-      "updated_at": "2026-11-19T03:24:54Z",
-      "pushed_at": "2026-11-19T02:47:24Z",
-      "stargazers_count": 0,
-      "html_url": "https://github.com/MrWengKB/HanziMatch",
-      "has_pages": true,
-      "default_branch": "main"
-    },
-    {
       "name": "Unscramble",
       "full_name": "MrWengKB/Unscramble",
       "description": "将词语排列成通顺的句子。 (Chinese) Unscramble the words to form a sentence.",
@@ -301,7 +337,7 @@
       ],
       "language": "JavaScript",
       "updated_at": "2026-11-19T03:20:38Z",
-      "pushed_at": "2026-11-22T07:05:14Z",
+      "pushed_at": "2026-11-26T07:21:49Z",
       "stargazers_count": 0,
       "html_url": "https://github.com/MrWengKB/HanziQuery",
       "has_pages": true,
@@ -383,7 +419,7 @@
       "topics": [],
       "language": "JavaScript",
       "updated_at": "2026-11-16T10:30:09Z",
-      "pushed_at": "2026-11-25T14:31:21Z",
+      "pushed_at": "2026-11-25T23:38:17Z",
       "stargazers_count": 0,
       "html_url": "https://github.com/MrWengKB/mrwengkb.github.io",
       "has_pages": true,
