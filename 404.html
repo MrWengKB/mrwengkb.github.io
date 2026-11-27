@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- GA-START: Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LVJJ4GY9FC"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LVJJ4GY9FC');
+  </script>
+  <!-- GA-END -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Page not found · MrWengKB's Creations</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <style>
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;color:#22302a;background:#f6f4ee;text-align:center;padding:1.5rem}
+    #notfound{display:none}
+    a{color:#2f6b52}
+  </style>
+  <!--
+    Project links are case-sensitive on GitHub Pages (/HanziBattle/ works, /hanzibattle/ does not).
+    This page fixes the case of the project name and forwards, so short links like
+    go.mrwengkb.com/hanzibattle or mrwengkb.com/hanzibattle still open the right project.
+  -->
+  <script>
+    (function () {
+      // Fallback list, used if repos.json can't be loaded
+      var known = ['OracleMatch','HanziMatch','HanziBattle','HoneycombWar','SmartTVControl','webOSControl','ClassManager','ClassHero','SeatManager','StoryBox','HanziBomb','Prompter','CompoMarker','CLAdventure','Unscramble','CLMiner','PracRead','HanziQuery','iSubmit','blog','ELMiner','ELAdventure'];
+      var parts = location.pathname.split('/');            // ['', 'hanzibattle', 'rest...']
+      var first = decodeURIComponent(parts[1] || '');
+      function go(names) {
+        var lower = first.toLowerCase();
+        for (var i = 0; i < names.length; i++) {
+          if (names[i].toLowerCase() === lower && names[i] !== first) {
+            parts[1] = names[i];
+            var path = parts.join('/');
+            if (parts.length === 2) path += '/';           // /hanzibattle -> /HanziBattle/
+            location.replace(path + location.search + location.hash);
+            return true;
+          }
+        }
+        return false;
+      }
+      function notFound() {
+        document.addEventListener('DOMContentLoaded', function () {
+          document.getElementById('notfound').style.display = 'block';
+        });
+        if (document.readyState !== 'loading') document.getElementById('notfound').style.display = 'block';
+      }
+      if (!first || go(known)) { if (!first) notFound(); return; }
+      fetch('/repos.json', { cache: 'no-cache' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var names = (d.repos || d).map(function (r) { return r.name; });
+          if (!go(names)) notFound();
+        })
+        .catch(notFound);
+    })();
+  </script>
+</head>
+<body>
+  <div id="notfound">
+    <h1>Page not found · 找不到这个页面</h1>
+    <p>See all projects at <a href="/">mrwengkb.github.io</a> · 查看所有项目</p>
+  </div>
+</body>
+</html>
