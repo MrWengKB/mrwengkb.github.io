@@ -1,6 +1,23 @@
 {
   "repos": [
     {
+      "name": "Humanitas",
+      "full_name": "MrWengKB/Humanitas",
+      "description": "Guide a single people from a band of a few dozen hunter-gatherers to a civilization that builds artificial intelligence. 引领一个民族，从几十人的狩猎采集部落，发展成能够创造人工智能的现代文明。",
+      "topics": [
+        "chinese",
+        "english",
+        "game"
+      ],
+      "language": "JavaScript",
+      "updated_at": "2026-11-28T18:55:02Z",
+      "pushed_at": "2026-11-28T18:20:01Z",
+      "stargazers_count": 0,
+      "html_url": "https://github.com/MrWengKB/Humanitas",
+      "has_pages": true,
+      "default_branch": "main"
+    },
+    {
       "name": "FeatureReq",
       "full_name": "MrWengKB/FeatureReq",
       "description": "Feature Request Form. (Not all wishes can be granted!) 功能建议表单（不是所有愿望都能实现！）",
@@ -445,7 +462,7 @@
       "topics": [],
       "language": "JavaScript",
       "updated_at": "2026-11-16T10:30:09Z",
-      "pushed_at": "2026-11-28T06:11:11Z",
+      "pushed_at": "2026-11-28T11:48:07Z",
       "stargazers_count": 0,
       "html_url": "https://github.com/MrWengKB/mrwengkb.github.io",
       "has_pages": true,
