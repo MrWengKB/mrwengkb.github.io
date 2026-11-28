@@ -7,7 +7,7 @@ const GITHUB_USERNAME = "MrWengKB";
 const EXCLUDE_HOME_REPO = true;
 
 // 不在导航页显示的仓库（填仓库名，不分大小写）
-const EXCLUDE_REPOS = ["blog", "mrwengkb.com"];
+const EXCLUDE_REPOS = ["blog", "mrwengkb.com", "FeatureReq"];
 
 // 分类：按仓库的 Topics（主题标签）归类，按顺序显示为顶部的切换按钮。
 // 新增分类只需在这里加一行，并给对应仓库打上同名 topic。
